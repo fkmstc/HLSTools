@@ -1,0 +1,10 @@
+C:\Users\mozuku\source\repos\ffmpegHlsEdit\ffmpegHlsEdit\bin\Debug\ffmpegHlsEdit.exe.config
+C:\Users\mozuku\source\repos\ffmpegHlsEdit\ffmpegHlsEdit\bin\Debug\ffmpegHlsEdit.exe
+C:\Users\mozuku\source\repos\ffmpegHlsEdit\ffmpegHlsEdit\bin\Debug\ffmpegHlsEdit.pdb
+C:\Users\mozuku\source\repos\ffmpegHlsEdit\ffmpegHlsEdit\obj\Debug\ffmpegHlsEdit.Form1.resources
+C:\Users\mozuku\source\repos\ffmpegHlsEdit\ffmpegHlsEdit\obj\Debug\ffmpegHlsEdit.Properties.Resources.resources
+C:\Users\mozuku\source\repos\ffmpegHlsEdit\ffmpegHlsEdit\obj\Debug\ffmpegHlsEdit.csproj.GenerateResource.cache
+C:\Users\mozuku\source\repos\ffmpegHlsEdit\ffmpegHlsEdit\obj\Debug\ffmpegHlsEdit.csproj.CoreCompileInputs.cache
+C:\Users\mozuku\source\repos\ffmpegHlsEdit\ffmpegHlsEdit\obj\Debug\ffmpegHlsEdit.exe
+C:\Users\mozuku\source\repos\ffmpegHlsEdit\ffmpegHlsEdit\obj\Debug\ffmpegHlsEdit.pdb
+C:\Users\mozuku\source\repos\ffmpegHlsEdit\ffmpegHlsEdit\obj\Debug\ffmpegHlsEdit.csprojAssemblyReference.cache
