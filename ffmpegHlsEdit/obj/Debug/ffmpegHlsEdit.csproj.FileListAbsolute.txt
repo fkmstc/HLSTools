@@ -8,3 +8,13 @@ C:\Users\mozuku\source\repos\ffmpegHlsEdit\ffmpegHlsEdit\obj\Debug\ffmpegHlsEdit
 C:\Users\mozuku\source\repos\ffmpegHlsEdit\ffmpegHlsEdit\obj\Debug\ffmpegHlsEdit.exe
 C:\Users\mozuku\source\repos\ffmpegHlsEdit\ffmpegHlsEdit\obj\Debug\ffmpegHlsEdit.pdb
 C:\Users\mozuku\source\repos\ffmpegHlsEdit\ffmpegHlsEdit\obj\Debug\ffmpegHlsEdit.csprojAssemblyReference.cache
+C:\GitHub\fkmstc\HLSTools\ffmpegHlsEdit\bin\Debug\ffmpegHlsEdit.exe.config
+C:\GitHub\fkmstc\HLSTools\ffmpegHlsEdit\bin\Debug\ffmpegHlsEdit.exe
+C:\GitHub\fkmstc\HLSTools\ffmpegHlsEdit\bin\Debug\ffmpegHlsEdit.pdb
+C:\GitHub\fkmstc\HLSTools\ffmpegHlsEdit\obj\Debug\ffmpegHlsEdit.csprojAssemblyReference.cache
+C:\GitHub\fkmstc\HLSTools\ffmpegHlsEdit\obj\Debug\ffmpegHlsEdit.Form1.resources
+C:\GitHub\fkmstc\HLSTools\ffmpegHlsEdit\obj\Debug\ffmpegHlsEdit.Properties.Resources.resources
+C:\GitHub\fkmstc\HLSTools\ffmpegHlsEdit\obj\Debug\ffmpegHlsEdit.csproj.GenerateResource.cache
+C:\GitHub\fkmstc\HLSTools\ffmpegHlsEdit\obj\Debug\ffmpegHlsEdit.csproj.CoreCompileInputs.cache
+C:\GitHub\fkmstc\HLSTools\ffmpegHlsEdit\obj\Debug\ffmpegHlsEdit.exe
+C:\GitHub\fkmstc\HLSTools\ffmpegHlsEdit\obj\Debug\ffmpegHlsEdit.pdb
