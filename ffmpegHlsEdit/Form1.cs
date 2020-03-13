@@ -1,11 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace ffmpegHlsEdit {
     public partial class Form1 : Form {
-
-
-        public string[] parameter = new string[10];
 
         public Form1() {
             InitializeComponent();
@@ -31,15 +29,24 @@ namespace ffmpegHlsEdit {
         }
 
         private void ListBox1_SelectedIndexChanged(object sender, EventArgs e) {
+            ProcessStartInfo psi = new ProcessStartInfo();
+            psi.FileName = "ffprobe.exe";
+            psi.Arguments = (string)listBox1.SelectedItem;
+            psi.CreateNoWindow = true;
+            psi.UseShellExecute = false;
 
+            psi.RedirectStandardOutput = true;
+            Process p = Process.Start(psi);
+            p.OutputDataReceived += p_OutputDataReceived;
+            p.BeginOutputReadLine();
+            p.WaitForExit();
+            p.Close();
         }
-
-        private void addListBoxName(string[] fileName) {
-            for (int i = 0; i < fileName.Length; i++) {
-                if(listBox1.Items.IndexOf(fileName[i]) == -1) {
-                    listBox1.Items.Add(fileName[i]);
-                }
-            }
+        private void p_OutputDataReceived(object sender, DataReceivedEventArgs e) {
+            //出力された文字列を表示する
+            Console.WriteLine("ok:" + e.Data);
+            //label1.Text = e.Data;
+            //label1.Text += "aa";
         }
 
         private void Button2_Click(object sender, EventArgs e) {
@@ -49,7 +56,7 @@ namespace ffmpegHlsEdit {
 
         private void Button3_Click(object sender, EventArgs e) {
             if (listBox1.Items.Count != 0) {
-                DialogResult result = MessageBox.Show("全て消去しますか？?",
+                DialogResult result = MessageBox.Show("全て消去しますか?",
                 "全て消去",
                 MessageBoxButtons.OKCancel,
                 MessageBoxIcon.Warning,
@@ -60,5 +67,15 @@ namespace ffmpegHlsEdit {
                 }
             }
         }
+
+        private void addListBoxName(string[] fileName) {
+            for (int i = 0; i < fileName.Length; i++) {
+                if (listBox1.Items.IndexOf(fileName[i]) == -1) {
+                    listBox1.Items.Add(fileName[i]);
+                }
+            }
+        }
+
+
     }
 }
