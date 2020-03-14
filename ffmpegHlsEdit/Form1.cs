@@ -3,14 +3,11 @@ using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 
-namespace ffmpegHlsEdit
-{
-    public partial class Form1 : Form
-    {
+namespace ffmpegHlsEdit {
+    public partial class Form1 : Form {
         //ファイル情報
         public string data = "";
         // カレントディレクトリの取得
@@ -85,33 +82,18 @@ namespace ffmpegHlsEdit
                     ;
 
                 //ffprobeを実行
-                processStart(@"\ffprobe.exe",$"{(string)listBox1.SelectedItem} 2>&1 -hide_banner");
+                processStart(@"\ffprobe.exe", $"{(string)listBox1.SelectedItem} 2>&1 -hide_banner");
 
             }
         }
 
 
-        private void Timer1_Tick(object sender, EventArgs e) {
-            //処理内容を記述した無名delegateをMethodInvokerにキャストし、
-            //Invokeメソッドに処理の実行を依頼します。
-            Invoke((MethodInvoker)delegate {
-                textBox9.Text = data;
-            });
-        }
-
-        //標準出力を受け取るイベントハンドラ
-        private void dataReceived(object sender, DataReceivedEventArgs e) {
-            data += e.Data + "\n";
-            Console.WriteLine(e.Data);
-           
-
-        }
 
         //選択消去
         private void Button2_Click(object sender, EventArgs e) {
             if (listBox1.SelectedIndex != -1) {
                 listBox1.Items.RemoveAt(listBox1.SelectedIndex);
-                label1.Text = "";
+                textBox9.Text = "";
             }
         }
 
@@ -126,7 +108,7 @@ namespace ffmpegHlsEdit
 
                 if (result == DialogResult.OK) {
                     listBox1.Items.Clear();
-                    label1.Text = "";
+                    textBox9.Text = "";
                 }
             }
         }
@@ -143,6 +125,9 @@ namespace ffmpegHlsEdit
 
         //変換ボタン
         private void button4_Click(object sender, EventArgs e) {
+
+            button4.Text = "変換中！！";
+
             string output = "";
             string g3output = "";
 
@@ -172,7 +157,7 @@ namespace ffmpegHlsEdit
                 }
                 TextBox tb = obj as TextBox;
                 if (tb != null && tb.Enabled) {
-                    if(tb.Name == "textBox7") {
+                    if (tb.Name == "textBox7") {
                         output += "-hls_segment_filename ";
                     }
                     output += tb.Text + " ";
@@ -198,7 +183,7 @@ namespace ffmpegHlsEdit
                 }
             }
             //出力コマンド
-            //Console.WriteLine(output);
+            Console.WriteLine(output);
             processStart(@"\ffmpeg.exe", $"{(string)listBox1.SelectedItem} 2>&1 " + output);
         }
 
@@ -279,31 +264,40 @@ namespace ffmpegHlsEdit
         private void processStart(string exeDir, string argument) {
             data = "";
             string ffPath = currentDir + exeDir;
-            ProcessStartInfo psi = new ProcessStartInfo();
-            psi.FileName = "cmd.exe";
+            Process p = new Process();
+            p.StartInfo.FileName = "cmd.exe";
 
             //何故かffmpeg系は標準出力ではなく，
             //エラー出力なので"2>&1"を追加することで標準出力へ切り替える．
-            psi.Arguments = $"/c {ffPath} -i " + argument;
+            p.StartInfo.Arguments = $"/c {ffPath} -i " + argument;
 
-            psi.CreateNoWindow = true;
-            psi.UseShellExecute = false;
-            psi.RedirectStandardOutput = true;
-            psi.StandardOutputEncoding = Encoding.UTF8;
-
-            
-
-
-            Process p = Process.Start(psi);
+            p.StartInfo.CreateNoWindow = true;
+            p.StartInfo.UseShellExecute = false;
+            p.StartInfo.RedirectStandardOutput = true;
+            p.StartInfo.StandardOutputEncoding = Encoding.UTF8;
             p.OutputDataReceived += dataReceived;
-            //p.OutputDataReceived += Timer1_Tick;
+
+            p.Start();
             p.BeginOutputReadLine();    //非同期で標準出力
             p.WaitForExit();
-            label1.Text = data;
+            p.Close();
+            button4.Text = "変換";
         }
 
+        //標準出力を受け取るイベントハンドラ
+        private void dataReceived(object sender, DataReceivedEventArgs e) {
+            //data += e.Data + "\r\n";
+            Console.WriteLine(e.Data);
+            Action act = () => {
+                if (string.IsNullOrEmpty(e.Data) == false) {
+                    textBox9.AppendText(e.Data);
+                }
+                textBox9.AppendText(Environment.NewLine);
+            };
 
-        
+            BeginInvoke(act);
+        }
+
 
     }
 }
