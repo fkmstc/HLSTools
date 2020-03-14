@@ -3,15 +3,23 @@ using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace ffmpegHlsEdit {
-    public partial class Form1 : Form {
+
+namespace ffmpegHlsEdit
+{
+    public partial class Form1 : Form
+    {
         //ファイル情報
         public string data = "";
+        // カレントディレクトリの取得
+        public string currentDir = Directory.GetCurrentDirectory();
 
         public Form1() {
             InitializeComponent();
+            comboBox1.SelectedIndex = 0;
+            comboBox2.SelectedIndex = 0;
         }
 
 
@@ -66,38 +74,44 @@ namespace ffmpegHlsEdit {
 
         //ファイル情報取得
         private void ListBox1_SelectedIndexChanged(object sender, EventArgs e) {
-            string ffprobePath = @"C:\GitHub\fkmstc\HLSTools\ffprobe.exe";
-            ProcessStartInfo psi = new ProcessStartInfo();
-            psi.FileName = "cmd.exe";
+            if (listBox1.SelectedIndex != -1) {
 
-            //何故かffmpeg系は標準出力ではなく，
-            //エラー出力なので"2>&1"を追加することで標準出力へ切り替える．
-            psi.Arguments = $"/c {ffprobePath}  {(string)listBox1.SelectedItem} 2>&1";
+                //tsファイル名の設定
+                string outputFileName = Path.GetFileName((string)listBox1.SelectedItem);
+                textBox7.Text = outputFileName.Substring(
+                    0,
+                    outputFileName.IndexOf("."))
+                    + "%3d.ts"
+                    ;
 
-            psi.CreateNoWindow = true;
-            psi.UseShellExecute = false;
-            psi.RedirectStandardOutput = true;
-            psi.StandardOutputEncoding = Encoding.UTF8;
+                //ffprobeを実行
+                processStart(@"\ffprobe.exe",$"{(string)listBox1.SelectedItem} 2>&1 -hide_banner");
 
-            Process p = Process.Start(psi);
-            p.OutputDataReceived += dataReceived;
-            p.BeginOutputReadLine();	//非同期で標準出力
-            p.WaitForExit();
-
-            label1.Text = data;
+            }
+        }
 
 
+        private void Timer1_Tick(object sender, EventArgs e) {
+            //処理内容を記述した無名delegateをMethodInvokerにキャストし、
+            //Invokeメソッドに処理の実行を依頼します。
+            Invoke((MethodInvoker)delegate {
+                textBox9.Text = data;
+            });
         }
 
         //標準出力を受け取るイベントハンドラ
         private void dataReceived(object sender, DataReceivedEventArgs e) {
             data += e.Data + "\n";
+            Console.WriteLine(e.Data);
+           
+
         }
 
         //選択消去
         private void Button2_Click(object sender, EventArgs e) {
             if (listBox1.SelectedIndex != -1) {
                 listBox1.Items.RemoveAt(listBox1.SelectedIndex);
+                label1.Text = "";
             }
         }
 
@@ -112,6 +126,7 @@ namespace ffmpegHlsEdit {
 
                 if (result == DialogResult.OK) {
                     listBox1.Items.Clear();
+                    label1.Text = "";
                 }
             }
         }
@@ -125,6 +140,170 @@ namespace ffmpegHlsEdit {
             }
         }
 
+
+        //変換ボタン
+        private void button4_Click(object sender, EventArgs e) {
+            string output = "";
+            string g3output = "";
+
+            //groupBoxからそれぞれのオブジェクトを取得，キャストし出力コマンド(output)を作成
+            foreach (object obj in groupBox2.Controls) {
+                CheckBox cb = obj as CheckBox;
+                if (cb != null && cb.Checked) {
+                    output += cb.Text + " ";
+
+                    switch (cb.Text) {
+                        case "-hls_time":
+                            foreach (object g3obj in groupBox3.Controls) {
+                                CheckBox g3cb = g3obj as CheckBox;
+                                if (g3cb != null && g3cb.Checked) {
+                                    g3output += g3cb.Text + " ";
+                                    continue;
+                                }
+                                TextBox g3tb = g3obj as TextBox;
+                                if (g3tb != null) {
+                                    g3output += g3tb.Text + " ";
+                                    continue;
+                                }
+                            }
+                            break;
+                    }
+                    continue;
+                }
+                TextBox tb = obj as TextBox;
+                if (tb != null && tb.Enabled) {
+                    if(tb.Name == "textBox7") {
+                        output += "-hls_segment_filename ";
+                    }
+                    output += tb.Text + " ";
+                    switch (tb.Name) {
+                        case "textBox2":
+                            if (checkBox2.Checked) {
+                                output += g3output;
+                            }
+                            break;
+                    }
+
+                    continue;
+                }
+                ComboBox comb = obj as ComboBox;
+                if (comb != null && comb.Enabled) {
+                    output += comb.Text + " ";
+                    //aacを使う場合　追加でコマンドが必要
+                    if (comboBox2.Text == "aac" && comboBox2.Enabled) {
+                        output += "-strict -2 ";
+                    }
+                    continue;
+
+                }
+            }
+            //出力コマンド
+            //Console.WriteLine(output);
+            processStart(@"\ffmpeg.exe", $"{(string)listBox1.SelectedItem} 2>&1 " + output);
+        }
+
+
+        //-hls_time　詳細
+        private void checkBox2_CheckedChanged(object sender, EventArgs e) {
+            //有効化
+            if (checkBox2.Checked) {
+                textBox2.Enabled = true;
+                foreach (object obj in groupBox3.Controls) {
+                    CheckBox cb = obj as CheckBox;
+                    if (cb != null) {
+                        cb.Enabled = true;
+                        continue;
+                    }
+
+                    TextBox tb = obj as TextBox;
+                    if (tb != null) {
+                        tb.Enabled = true;
+                        continue;
+                    }
+                }
+                //無効化
+            } else {
+                foreach (object obj in groupBox3.Controls) {
+                    textBox2.Enabled = false;
+                    CheckBox cb = obj as CheckBox;
+                    if (cb != null) {
+                        cb.Enabled = false;
+                        continue;
+                    }
+
+                    TextBox tb = obj as TextBox;
+                    if (tb != null) {
+                        tb.Enabled = false;
+                        continue;
+                    }
+                }
+            }
+        }
+
+        //-start_number
+        private void checkBox1_CheckedChanged(object sender, EventArgs e) {
+            if (checkBox1.Checked) {
+                textBox1.Enabled = true;
+            } else {
+                textBox1.Enabled = false;
+            }
+        }
+
+        //-hls_list_size
+        private void checkBox3_CheckedChanged(object sender, EventArgs e) {
+            if (checkBox3.Checked) {
+                textBox6.Enabled = true;
+            } else {
+                textBox6.Enabled = false;
+            }
+        }
+
+        //-c:v
+        private void checkBox4_CheckedChanged(object sender, EventArgs e) {
+            if (checkBox4.Checked) {
+                comboBox1.Enabled = true;
+            } else {
+                comboBox1.Enabled = false;
+            }
+        }
+
+        //-c:a
+        private void checkBox8_CheckedChanged(object sender, EventArgs e) {
+            if (checkBox8.Checked) {
+                comboBox2.Enabled = true;
+            } else {
+                comboBox2.Enabled = false;
+            }
+        }
+
+        private void processStart(string exeDir, string argument) {
+            data = "";
+            string ffPath = currentDir + exeDir;
+            ProcessStartInfo psi = new ProcessStartInfo();
+            psi.FileName = "cmd.exe";
+
+            //何故かffmpeg系は標準出力ではなく，
+            //エラー出力なので"2>&1"を追加することで標準出力へ切り替える．
+            psi.Arguments = $"/c {ffPath} -i " + argument;
+
+            psi.CreateNoWindow = true;
+            psi.UseShellExecute = false;
+            psi.RedirectStandardOutput = true;
+            psi.StandardOutputEncoding = Encoding.UTF8;
+
+            
+
+
+            Process p = Process.Start(psi);
+            p.OutputDataReceived += dataReceived;
+            //p.OutputDataReceived += Timer1_Tick;
+            p.BeginOutputReadLine();    //非同期で標準出力
+            p.WaitForExit();
+            label1.Text = data;
+        }
+
+
+        
 
     }
 }
